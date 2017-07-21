@@ -1,3 +1,6 @@
+You'll need to have ansible installed in order to use this:
+http://docs.ansible.com/ansible/latest/intro_installation.html
+
 This is an example ansible playbook used to configure a single node, and launch
 this website: https://github.com/craigmonson/IT-The_human_aspect-deck
 
