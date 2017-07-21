@@ -1,0 +1,36 @@
+---
+- hosts: apache
+  sudo: yes
+  vars:
+    http_port: 8080
+    domain: example.com
+  tasks:
+    - name: install modules
+      apt: name={{ item }} update_cache=yes state=latest
+      with_items:
+        - apache2
+        - git
+
+    - name: listen on port {{ http_port }}
+      lineinfile: dest=/etc/apache2/ports.conf regexp="^Listen " line="Listen {{ http_port }}" state=present
+      notify:
+        - restart apache2
+
+    - name: create site virtual host file
+      template: src=virtualhost.conf.tmpl dest=/etc/apache2/sites-available/000-default.conf
+      notify:
+        - restart apache2
+
+    - name: enable site {{ domain }}
+      command: a2ensite {{ domain }}
+      args:
+        creates: /etc/apache2/sites-enabled/{{ domain }}.conf
+      notify:
+        - restart apache2
+
+    - name: clone webslides
+      git: repo=https://github.com/craigmonson/IT-The_human_aspect-deck.git dest=/var/www/example.com update=no
+
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted
